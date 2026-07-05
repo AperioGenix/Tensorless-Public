@@ -53,28 +53,31 @@ To prevent "hidden tuning" attacks, the `TensorlessParamLedger` records every ru
 
 ## 🛠️ Usage and Validation
 
-This public repository contains the C ABI headers, self-contained domain adapters, and pre-compiled FPM architecture binaries. The private core implementation is intentionally excluded. 
+This public repository serves as the API reference and validation harness. The private core implementation is strictly black-boxed and excluded. **You cannot modify the core thermodynamic ledger; you can only route through it.**
 
-**You cannot modify the core thermodynamic ledger; you can only route through it.**
+To validate the thermodynamic bounds locally, you must download the pre-compiled FPM binaries:
 
-To validate the thermodynamic bounds locally:
+**1. Download and extract the latest release**
+Download the `.zip` for your platform (Linux, macOS, or Windows) from the [Releases page](https://github.com/AperioGenix/Tensorless-Public/releases). Extract the archive and open a terminal in the extracted folder.
 
-**1. Generate the build files**
+**2. Generate the build files**
 ```bash
+# Targets the 'source' folder bundled in the zip release
 cmake -S source -B build -DCMAKE_BUILD_TYPE=Release
 ```
 
-**2. Compile the adapters**
+**3. Compile the adapters**
 ```bash
 cmake --build build --parallel
 ```
 
-**3. Run the exact accounting experiments**
+**4. Run the exact accounting experiments**
 ```bash
 ctest --test-dir build --output-on-failure
 ```
 
-**4. Run specific validators directly**
+**5. Run specific validators directly**
 ```bash
+# On Windows, this will be build/Release/tensorless_landauer_erasure_validator.exe
 ./build/tensorless_landauer_erasure_validator
 ```
