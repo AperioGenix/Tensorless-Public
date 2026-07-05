@@ -1,0 +1,15 @@
+{"type":"hop","tick":1,"epoch":0,"from":[1,4],"to":[2,4]}
+{"type":"hop","tick":2,"epoch":0,"from":[2,4],"to":[3,4]}
+{"type":"hop","tick":3,"epoch":0,"from":[3,4],"to":[4,4]}
+{"type":"hop","tick":4,"epoch":0,"from":[4,4],"to":[5,4]}
+{"type":"hop","tick":5,"epoch":1,"from":[5,4],"to":[5,5]}
+{"type":"hop","tick":6,"epoch":1,"from":[5,5],"to":[6,5]}
+{"type":"hop","tick":7,"epoch":1,"from":[6,5],"to":[7,5]}
+{"type":"hop","tick":8,"epoch":1,"from":[7,5],"to":[8,5]}
+{"type":"hop","tick":9,"epoch":1,"from":[8,5],"to":[9,5]}
+{"type":"hop","tick":10,"epoch":1,"from":[9,5],"to":[10,5]}
+{"type":"hop","tick":11,"epoch":1,"from":[10,5],"to":[11,5]}
+{"type":"hop","tick":12,"epoch":1,"from":[11,5],"to":[12,5]}
+{"type":"hop","tick":13,"epoch":1,"from":[12,5],"to":[13,5]}
+{"type":"hop","tick":14,"epoch":1,"from":[13,5],"to":[13,4]}
+{"type":"summary","adapter":"dynamic_pathfinding","grid":[15,9],"initial_shortest_length":12,"replan_tick":4,"blocked":[6,4],"replanned_remaining_length":10,"executed_hops":14,"unreachable_case":true,"energy_residual":0,"momentum_residual":0,"deterministic_replay":true}

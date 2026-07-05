@@ -1,0 +1,28 @@
+{
+  "backend": "synthetic_fixture",
+  "calibration_timestamp_utc": null,
+  "circuit": "h_t_h_measure",
+  "completed_at_utc": "2026-07-03T00:00:01Z",
+  "counts": {
+    "0": 3300,
+    "1": 796
+  },
+  "dynamical_decoupling_enabled": false,
+  "isa_gate_counts": {
+    "measure": 1,
+    "rz": 1,
+    "sx": 2
+  },
+  "job_id": "fixture-not-hardware",
+  "logical_circuit_sha256": "5731deea80fc9a8a16f0cf7c6a11af76c5beaf3a649a3a3a56eae1f76d8960a6",
+  "optimization_level": 1,
+  "provider": "ibm_quantum",
+  "qiskit_ibm_runtime_version": "synthetic",
+  "qiskit_version": "synthetic",
+  "schema_version": 1,
+  "shots": 4096,
+  "submitted_at_utc": "2026-07-03T00:00:00Z",
+  "synthetic": true,
+  "transpiled_circuit_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+  "twirling_enabled": false
+}

@@ -1,0 +1,110 @@
+name: Tensorless Public Drop
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  sync-repo:
+    name: Sync Public Codebase
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.get-version.outputs.version }}
+    steps:
+      - name: Checkout Public Repo
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.PUBLIC_REPO_TOKEN }}
+
+      - name: Checkout Private Engine
+        uses: actions/checkout@v4
+        with:
+          repository: alxspiker/TensorlessEngine
+          ref: main
+          token: ${{ secrets.PRIVATE_REPO_TOKEN }}
+          path: private_engine
+
+      - name: Extract Version
+        id: get-version
+        run: |
+          VERSION=$(grep -oE 'project\(TensorlessEngine VERSION [0-9]+\.[0-9]+\.[0-9]+' private_engine/core/CMakeLists.txt | awk '{print $3}')
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "Parsed version: $VERSION"
+
+      - name: Sync Files
+        run: |
+          shopt -s extglob
+          # Remove everything except git metadata and the private engine source
+          rm -rf !(.git|.github|private_engine)
+          
+          # Copy allowed public files (the "vault seal")
+          cp private_engine/README.public.md ./README.md
+          cp private_engine/LICENSE ./ || true
+          mkdir -p core/include core/adapters core/tools
+          cp -r private_engine/core/include/tensorless ./core/include/
+          cp -r private_engine/core/adapters/* ./core/adapters/
+          cp -r private_engine/core/tools/* ./core/tools/
+          
+          # Remove private repo checkout so it isn't committed
+          rm -rf private_engine
+          
+      - name: Commit and Push
+        run: |
+          git config --global user.name "GitHub Action"
+          git config --global user.email "action@github.com"
+          git add -A
+          git diff --quiet && git diff --staged --quiet || (git commit -m "Sync public footprint from private engine [skip ci]" && git push)
+
+  build-and-package:
+    name: Build & Package (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    needs: sync-repo
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+    steps:
+      - name: Checkout Private Engine
+        uses: actions/checkout@v4
+        with:
+          repository: alxspiker/TensorlessEngine
+          ref: main
+          token: ${{ secrets.PRIVATE_REPO_TOKEN }}
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Build Release Package
+        run: python3 scripts/package_release.py
+
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: tensorless-package-${{ matrix.os }}
+          path: dist/*.zip
+          if-no-files-found: error
+
+  publish-release:
+    name: Publish GitHub Release
+    runs-on: ubuntu-latest
+    needs: [sync-repo, build-and-package]
+    steps:
+      - name: Download Artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+          merge-multiple: true
+
+      - name: Create or Update Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v${{ needs.sync-repo.outputs.version }}
+          name: Tensorless Engine v${{ needs.sync-repo.outputs.version }}
+          files: artifacts/*.zip
+          token: ${{ secrets.PUBLIC_REPO_TOKEN }}
+          draft: false
+          prerelease: false
+          make_latest: true
