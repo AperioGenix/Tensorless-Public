@@ -11,10 +11,10 @@ constexpr uint64_t kLandauerActionSubunits = 2805; // kT ln 2 at 298K scaled
 struct RunResult {
     bool sufficient_energy_success = false;
     uint64_t case_a_deficit = 0;
-    
+
     bool starvation_deficit_success = false;
     uint64_t case_b_deficit = 0;
-    
+
     bool operator==(const RunResult&) const = default;
 };
 
@@ -77,7 +77,7 @@ bool RunCaseB(RunResult& result) {
     payloads[source] = kQuantum;
 
     TensorlessFpmSandboxStats stats{};
-    // The engine should NOT throw TENSORLESS_STATUS_STATE_ERROR here. 
+    // The engine should NOT throw TENSORLESS_STATUS_STATE_ERROR here.
     // It should return TENSORLESS_STATUS_OK, gracefully fail the routing, and record the deficit.
     if (!tensorless_adapter::Check(Tensorless_FpmSandboxStep(sandbox.get(), actions.data(), payloads.data(), 2, &stats), "Step Case B")) return false;
 
@@ -87,9 +87,9 @@ bool RunCaseB(RunResult& result) {
     if (!tensorless_adapter::Check(Tensorless_FpmSandboxGetNode(sandbox.get(), sink, &final_sink), "GetNode sink")) return false;
 
     result.case_b_deficit = stats.starvation_deficit_subunits;
-    // Because actual_payload becomes 0, the node uses its 1000 subunits to pay for the 2805 action, 
+    // Because actual_payload becomes 0, the node uses its 1000 subunits to pay for the 2805 action,
     // starving by 1805. The payload does not reach the sink.
-    result.starvation_deficit_success = (stats.starvation_deficit_subunits > 0 && 
+    result.starvation_deficit_success = (stats.starvation_deficit_subunits > 0 &&
                                          final_source.energy_subunits == 0 &&
                                          final_sink.energy_subunits == tensorless_adapter::kEnergyCeiling - kQuantum);
     return true;
@@ -121,13 +121,13 @@ int main() {
     if (!RunCaseA(result) || !RunCaseB(result)) {
         return 2;
     }
-    
+
     if (!result.sufficient_energy_success || !result.starvation_deficit_success) {
-        std::cerr << "Thermodynamic bounding failed. Sufficient: " << result.sufficient_energy_success 
+        std::cerr << "Thermodynamic bounding failed. Sufficient: " << result.sufficient_energy_success
                   << ", Starvation: " << result.starvation_deficit_success << "\n";
         return 1;
     }
-    
+
     WriteTrace(result);
     return 0;
 }
