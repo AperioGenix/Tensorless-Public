@@ -41,7 +41,8 @@ jobs:
           
           # Copy allowed public files (the "vault seal")
           cp private_engine/README.public.md ./README.md
-          cp private_engine/LICENSE ./ || true
+          test -f private_engine/LICENSE
+          cp private_engine/LICENSE ./LICENSE
           mkdir -p core/include core/adapters core/tools
           cp -r private_engine/core/include/tensorless ./core/include/
           cp -r private_engine/core/adapters/* ./core/adapters/
@@ -78,7 +79,15 @@ jobs:
           python-version: '3.11'
 
       - name: Build Release Package
-        run: python3 scripts/package_release.py
+        run: python scripts/package_release.py
+
+      - name: Verify License In Release Package
+        run: >-
+          python -c "import glob, zipfile;
+          archives = glob.glob('dist/*.zip');
+          assert len(archives) == 1, archives;
+          names = zipfile.ZipFile(archives[0]).namelist();
+          assert 'tensorless_drop/LICENSE' in names, names"
 
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
